@@ -4,22 +4,37 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:dream_reader/features/subscription/user_subscription_provider.dart';
 
 part 'image_service.g.dart';
 
 @Riverpod(keepAlive: true)
 ImageService imageService(Ref ref) {
-  return ImageService();
+  return ImageService(ref);
 }
 
 class ImageService {
   static const _url = 'https://api.openai.com/v1/images/generations';
   final String _apiKey = dotenv.get('OPENAI_API_KEY', fallback: '');
+  final Ref _ref;
+
+  ImageService(this._ref);
 
   Future<(String? url, String? error)> generateDreamImage(String visualPrompt) async {
+    final isPremium = _ref.read(userSubscriptionProvider);
+
+    // Free Tier: Logic
+    if (!isPremium) {
+       debugPrint('ℹ️ ImageService: User is Free Tier. Using Pollinations (Fast).');
+       return _generatePollinationsImage(visualPrompt);
+    }
+
+    // Premium Tier: Logic
+    debugPrint('💎 ImageService: User is PREMIUM. Attempting DALL-E 3 (High Def).');
+
     // If API Key is missing, go straight to fallback
     if (_apiKey.isEmpty) {
-      debugPrint('ℹ️ ImageService: No OpenAI Key, using Pollinations.ai fallback.');
+      debugPrint('ℹ️ ImageService: No OpenAI Key, falling back despite Premium.');
       return _generatePollinationsImage(visualPrompt);
     }
 
@@ -35,7 +50,7 @@ class ImageService {
           'prompt': visualPrompt,
           'n': 1,
           'size': '1024x1024',
-          'quality': 'standard',
+          'quality': 'hd', // HD for Premium
         }),
       );
 

@@ -1,26 +1,27 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'image_service.dart';
+part of 'analytics_service.dart';
 
 // **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
 
-String _$imageServiceHash() => r'5ea66d746979c0ae20975b04f250d93b1dddda04';
+String _$analyticsServiceHash() => r'f78c860054a7ea02b57b34651266052985684b21';
 
-/// See also [imageService].
-@ProviderFor(imageService)
-final imageServiceProvider = Provider<ImageService>.internal(
-  imageService,
-  name: r'imageServiceProvider',
-  debugGetCreateSourceHash:
-      const bool.fromEnvironment('dart.vm.product') ? null : _$imageServiceHash,
+/// See also [analyticsService].
+@ProviderFor(analyticsService)
+final analyticsServiceProvider = Provider<AnalyticsService>.internal(
+  analyticsService,
+  name: r'analyticsServiceProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$analyticsServiceHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-typedef ImageServiceRef = ProviderRef<ImageService>;
+typedef AnalyticsServiceRef = ProviderRef<AnalyticsService>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

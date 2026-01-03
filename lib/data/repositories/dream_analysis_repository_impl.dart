@@ -6,6 +6,7 @@ import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 part 'dream_analysis_repository_impl.g.dart';
 
@@ -19,6 +20,7 @@ DreamAnalysisRepository dreamAnalysisRepository(Ref ref) {
 
 class DreamAnalysisRepositoryImpl implements DreamAnalysisRepository {
   late final GenerativeModel _model;
+  final Box _box = Hive.box('dreams');
 
   DreamAnalysisRepositoryImpl() {
     _model = GenerativeModel(
@@ -76,6 +78,18 @@ JSON format:
       }
 
       final jsonMap = jsonDecode(responseText) as Map<String, dynamic>;
+      
+      // Persist to Hive
+      try {
+        await _box.add({
+          'text': text,
+          'date': DateTime.now().toIso8601String(),
+          'analysis': jsonMap,
+        });
+      } catch (e) {
+        debugPrint('⚠️ Failed to save dream to local storage: $e');
+      }
+
       return DreamResponse.fromJson(jsonMap);
     } catch (e) {
       debugPrint('❌ Analysis Parsing Error: $e');
