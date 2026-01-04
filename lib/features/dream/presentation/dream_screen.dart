@@ -3,7 +3,6 @@ import 'package:dream_reader/application/dream_controller.dart';
 import 'package:dream_reader/application/dream_state.dart';
 import 'package:dream_reader/presentation/widgets/ai_orb.dart';
 import 'package:dream_reader/presentation/widgets/analysis_feed.dart';
-import 'package:dream_reader/core/widgets/glass_container.dart';
 import 'package:dream_reader/presentation/widgets/lottie_loading.dart';
 import 'package:dream_reader/presentation/widgets/nebula_background.dart';
 import 'package:dream_reader/presentation/widgets/sacred_input.dart';
@@ -22,11 +21,19 @@ class DreamScreen extends ConsumerStatefulWidget {
 
 class _DreamScreenState extends ConsumerState<DreamScreen> {
   final GlobalKey _shareKey = GlobalKey();
+  final TextEditingController _textController = TextEditingController();
+
+  @override
+  void dispose() {
+    _textController.dispose();
+    super.dispose();
+  }
 
   Future<void> _captureAndShare() async {
     try {
-      final boundary = _shareKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
-      
+      final boundary = _shareKey.currentContext?.findRenderObject()
+          as RenderRepaintBoundary?;
+
       if (boundary == null) {
         debugPrint("Share Error: Boundary not found");
         return;
@@ -34,7 +41,7 @@ class _DreamScreenState extends ConsumerState<DreamScreen> {
 
       final image = await boundary.toImage(pixelRatio: 2.0);
       final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
-      
+
       if (byteData != null) {
         final pngBytes = byteData.buffer.asUint8List();
         ref.read(dreamControllerProvider.notifier).shareResult(pngBytes);
@@ -66,7 +73,8 @@ class _DreamScreenState extends ConsumerState<DreamScreen> {
                     // 1. Adaptive Header
                     SliverToBoxAdapter(
                       child: Padding(
-                        padding: EdgeInsets.symmetric(vertical: size.height * 0.02),
+                        padding:
+                            EdgeInsets.symmetric(vertical: size.height * 0.02),
                         child: Center(
                           child: Text(
                             context.l10n.appTitle,
@@ -81,46 +89,48 @@ class _DreamScreenState extends ConsumerState<DreamScreen> {
                       ),
                     ),
 
-                // 2. Responsive Content Layout
-                SliverPadding(
-                  padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
-                  sliver: SliverToBoxAdapter(
-                    child: isDesktop
-                        ? Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Left: AI Orb & Visuals
-                              Expanded(
-                                flex: 4,
-                                child: Column(
-                                  children: [
-                                    _buildOrbSection(size, dreamState),
-                                  ],
-                                ),
+                    // 2. Responsive Content Layout
+                    SliverPadding(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: horizontalPadding),
+                      sliver: SliverToBoxAdapter(
+                        child: isDesktop
+                            ? Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // Left: AI Orb & Visuals
+                                  Expanded(
+                                    flex: 4,
+                                    child: Column(
+                                      children: [
+                                        _buildOrbSection(size, dreamState),
+                                      ],
+                                    ),
+                                  ),
+                                  // Right: Interpretation Feed
+                                  Expanded(
+                                    flex: 6,
+                                    child: _buildAnalysisSection(dreamState),
+                                  ),
+                                ],
+                              )
+                            : Column(
+                                children: [
+                                  _buildOrbSection(size, dreamState),
+                                  _buildAnalysisSection(dreamState),
+                                ],
                               ),
-                              // Right: Interpretation Feed
-                              Expanded(
-                                flex: 6,
-                                child: _buildAnalysisSection(dreamState),
-                              ),
-                            ],
-                          )
-                        : Column(
-                            children: [
-                              _buildOrbSection(size, dreamState),
-                              _buildAnalysisSection(dreamState),
-                            ],
-                          ),
-                  ),
-                ),
+                      ),
+                    ),
 
-                // 3. Spacing for Input
-                SliverToBoxAdapter(child: SizedBox(height: size.height * 0.15)),
-              ],
+                    // 3. Spacing for Input
+                    SliverToBoxAdapter(
+                        child: SizedBox(height: size.height * 0.15)),
+                  ],
+                ),
+              ),
             ),
           ),
-        ),
-      ),
 
           // 4. Fixed Input Area (Floating at bottom)
           Positioned(
@@ -150,9 +160,11 @@ class _DreamScreenState extends ConsumerState<DreamScreen> {
                   child: SacredInput(
                     isListening: dreamState.isListening,
                     isLoading: dreamState.isLoading,
+                    controller: _textController,
                     onStartListening: () {
                       final locale = Localizations.localeOf(context);
-                      final localeId = "${locale.languageCode}-${locale.countryCode ?? locale.languageCode.toUpperCase()}";
+                      final localeId =
+                          "${locale.languageCode}-${locale.countryCode ?? locale.languageCode.toUpperCase()}";
                       controller.startVoiceInput(localeId);
                     },
                     onStopListening: () => controller.stopVoiceInput(),
@@ -196,9 +208,16 @@ class _DreamScreenState extends ConsumerState<DreamScreen> {
     final double orbSize = (size.height * 0.35).clamp(150.0, 400.0);
     return SizedBox(
       height: orbSize,
-      child: AIOrb(
-        isListening: dreamState.isListening,
-        isLoading: dreamState.isLoading,
+      child: ValueListenableBuilder<TextEditingValue>(
+        valueListenable: _textController,
+        builder: (context, value, _) {
+          return AIOrb(
+            isListening: dreamState.isListening,
+            isLoading: dreamState.isLoading,
+            isTyping: value.text.isNotEmpty,
+            textLength: value.text.length,
+          );
+        },
       ),
     );
   }

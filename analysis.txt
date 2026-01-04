@@ -1,0 +1,28 @@
+Analyzing dream_reader...                                       
+
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/core/services/notification_service.dart:8:39 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/core/services/notification_service.dart:12:54 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/core/services/notification_service.dart:35:39 • deprecated_member_use
+warning • Unused import: 'dart:typed_data' • lib/core/services/share_service.dart:2:8 • unused_import
+   info • Statements in an if should be enclosed in a block • lib/data/services/analytics_service.dart:50:9 • curly_braces_in_flow_control_structures
+   info • Statements in an if should be enclosed in a block • lib/data/services/analytics_service.dart:54:9 • curly_braces_in_flow_control_structures
+   info • Statements in an if should be enclosed in a block • lib/data/services/analytics_service.dart:58:9 • curly_braces_in_flow_control_structures
+   info • Statements in an if should be enclosed in a block • lib/data/services/analytics_service.dart:62:9 • curly_braces_in_flow_control_structures
+   info • Statements in an if should be enclosed in a block • lib/data/services/analytics_service.dart:66:9 • curly_braces_in_flow_control_structures
+   info • Unnecessary 'this.' qualifier • lib/data/services/analytics_service.dart:180:9 • unnecessary_this
+   info • Unnecessary 'this.' qualifier • lib/data/services/analytics_service.dart:181:39 • unnecessary_this
+   info • Unnecessary braces in a string interpolation • lib/data/services/mock_data_service.dart:221:21 • unnecessary_brace_in_string_interps
+warning • Unused import: 'package:dream_reader/core/widgets/glass_container.dart' • lib/features/dream/presentation/dream_screen.dart:6:8 • unused_import
+warning • The declaration '_SectionHeader' isn't referenced • lib/features/insights/presentation/wisdom_hub_screen.dart:52:7 • unused_element
+warning • The declaration '_WisdomCard' isn't referenced • lib/features/insights/presentation/wisdom_hub_screen.dart:72:7 • unused_element
+warning • The declaration '_RitualTile' isn't referenced • lib/features/insights/presentation/wisdom_hub_screen.dart:116:7 • unused_element
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/nebula/presentation/nebula_screen.dart:130:61 • deprecated_member_use
+warning • The value of the local variable 'totalDreams' isn't used • lib/features/profile/presentation/profile_screen.dart:20:11 • unused_local_variable
+warning • The value of the local variable 'clarity' isn't used • lib/features/profile/presentation/profile_screen.dart:21:11 • unused_local_variable
+   info • Statements in an if should be enclosed in a block • lib/features/profile/presentation/profile_screen.dart:116:19 • curly_braces_in_flow_control_structures
+   info • Unnecessary use of string interpolation • lib/features/profile/presentation/profile_screen.dart:224:12 • unnecessary_string_interpolations
+   info • 'value' is deprecated and shouldn't be used. Use component accessors like .r or .g, or toARGB32 for an explicit conversion • lib/features/profile/presentation/profile_screen.dart:224:15 • deprecated_member_use
+warning • The member 'state' can only be used within 'package:riverpod/src/notifier.dart' or a test • lib/presentation/navigation/main_entry_screen.dart:58:62 • invalid_use_of_visible_for_testing_member
+warning • The member 'state' can only be used within instance members of subclasses of 'package:riverpod/src/notifier.dart' • lib/presentation/navigation/main_entry_screen.dart:58:62 • invalid_use_of_protected_member
+   info • The import of 'package:flutter_riverpod/flutter_riverpod.dart' is unnecessary because all of the used elements are also provided by the import of 'package:riverpod_annotation/riverpod_annotation.dart' • lib/presentation/navigation/navigation_provider.dart:1:8 • unnecessary_import
+

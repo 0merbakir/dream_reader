@@ -4,27 +4,43 @@ import 'package:flutter_animate/flutter_animate.dart';
 class AIOrb extends StatelessWidget {
   final bool isListening;
   final bool isLoading;
+  final bool isTyping;
+  final int textLength;
 
   const AIOrb({
     super.key,
     required this.isListening,
     required this.isLoading,
+    this.isTyping = false,
+    this.textLength = 0,
   });
 
   @override
   Widget build(BuildContext context) {
-    // Dynamic color based on state
-    final Color primaryColor = isLoading 
-        ? const Color(0xFFFF00FF) 
-        : isListening 
-            ? const Color(0xFF00F0FF) 
-            : const Color(0xFF7B61FF);
+    // Dynamic color based on state and length
+    Color primaryColor = const Color(0xFF7B61FF);
+
+    if (isLoading) {
+      primaryColor = const Color(0xFFFF00FF);
+    } else if (isListening) {
+      primaryColor = const Color(0xFF00F0FF);
+    } else if (isTyping) {
+      // Shift from Gold to Cyan as length increases
+      final factor = (textLength / 200).clamp(0.0, 1.0);
+      primaryColor = Color.lerp(
+        const Color(0xFFFFD700), // Gold
+        const Color(0xFF00F0FF), // Cyan
+        factor,
+      )!;
+    }
 
     return LayoutBuilder(
       builder: (context, constraints) {
         final double vh = MediaQuery.of(context).size.height;
-        // Size relative to screen height but clamped
-        final double size = (vh * 0.3).clamp(150.0, 400.0);
+        // Size shift slightly with text length
+        final growth = (textLength / 500).clamp(0.0, 0.2);
+        final double baseSize = (vh * 0.3).clamp(150.0, 400.0);
+        final double size = baseSize * (1.0 + growth);
         final double orbSize = size * 0.6;
 
         return Center(
@@ -48,14 +64,14 @@ class AIOrb extends StatelessWidget {
                         ),
                       ),
                     )
-                    .animate(onPlay: (c) => c.repeat())
-                    .scale(
-                      begin: const Offset(1, 1),
-                      end: const Offset(2.0, 2.0),
-                      duration: (1.5 + i * 0.5).seconds,
-                      curve: Curves.easeOut,
-                    )
-                    .fadeOut(duration: (1.5 + i * 0.5).seconds),
+                        .animate(onPlay: (c) => c.repeat())
+                        .scale(
+                          begin: const Offset(1, 1),
+                          end: const Offset(2.0, 2.0),
+                          duration: (1.5 + i * 0.5).seconds,
+                          curve: Curves.easeOut,
+                        )
+                        .fadeOut(duration: (1.5 + i * 0.5).seconds),
                 ],
 
                 // The Main Orb
@@ -88,36 +104,36 @@ class AIOrb extends StatelessWidget {
                     ],
                   ),
                 )
-                .animate(onPlay: (c) => c.repeat(reverse: true))
-                .moveY(
-                  begin: 0, 
-                  end: -20, 
-                  duration: 4.seconds, 
-                  curve: Curves.easeInOutSine,
-                )
-                .animate(target: isListening ? 1 : 0)
-                .scale(
-                  begin: const Offset(1, 1),
-                  end: const Offset(1.1, 1.1),
-                  duration: 1.seconds,
-                  curve: Curves.easeInOut,
-                )
-                .animate(target: isLoading ? 1 : 0)
-                .scale(
-                  begin: const Offset(1, 1),
-                  end: const Offset(1.2, 1.2),
-                  duration: 100.ms,
-                  curve: Curves.elasticIn,
-                )
-                .then()
-                .animate(
-                  target: isLoading ? 1 : 0,
-                  onPlay: (c) => c.repeat(reverse: true),
-                )
-                .shimmer(
-                  duration: 1.seconds,
-                  color: Colors.white.withValues(alpha: 0.8),
-                ),
+                    .animate(onPlay: (c) => c.repeat(reverse: true))
+                    .moveY(
+                      begin: 0,
+                      end: -20,
+                      duration: 4.seconds,
+                      curve: Curves.easeInOutSine,
+                    )
+                    .animate(target: isListening ? 1 : 0)
+                    .scale(
+                      begin: const Offset(1, 1),
+                      end: const Offset(1.1, 1.1),
+                      duration: 1.seconds,
+                      curve: Curves.easeInOut,
+                    )
+                    .animate(target: isLoading ? 1 : 0)
+                    .scale(
+                      begin: const Offset(1, 1),
+                      end: const Offset(1.2, 1.2),
+                      duration: 100.ms,
+                      curve: Curves.elasticIn,
+                    )
+                    .then()
+                    .animate(
+                      target: isLoading ? 1 : 0,
+                      onPlay: (c) => c.repeat(reverse: true),
+                    )
+                    .shimmer(
+                      duration: 1.seconds,
+                      color: Colors.white.withValues(alpha: 0.8),
+                    ),
               ],
             ),
           ),

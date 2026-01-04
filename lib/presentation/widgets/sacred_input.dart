@@ -12,6 +12,7 @@ class SacredInput extends ConsumerStatefulWidget {
   final bool isLoading;
   final VoidCallback onStartListening;
   final VoidCallback onStopListening;
+  final TextEditingController controller;
 
   const SacredInput({
     super.key,
@@ -19,6 +20,7 @@ class SacredInput extends ConsumerStatefulWidget {
     required this.isLoading,
     required this.onStartListening,
     required this.onStopListening,
+    required this.controller,
   });
 
   @override
@@ -27,20 +29,18 @@ class SacredInput extends ConsumerStatefulWidget {
 
 class _SacredInputState extends ConsumerState<SacredInput> {
   bool _isManualMode = false;
-  final TextEditingController _textController = TextEditingController();
 
   @override
   void dispose() {
-    _textController.dispose();
     super.dispose();
   }
 
   void _submitManual() {
-    if (_textController.text.trim().isNotEmpty) {
+    if (widget.controller.text.trim().isNotEmpty) {
       final controller = ref.read(dreamControllerProvider.notifier);
-      controller.submitDream(_textController.text);
-      _textController.clear();
-      FocusScope.of(context).unfocus(); // Added unfocus
+      controller.analyzeDream(widget.controller.text);
+      widget.controller.clear();
+      FocusScope.of(context).unfocus();
       setState(() => _isManualMode = false);
     }
   }
@@ -69,7 +69,6 @@ class _SacredInputState extends ConsumerState<SacredInput> {
           ).animate().fadeIn(),
           SizedBox(height: sw * 4),
         ],
-
         if (widget.isLoading) ...[
           Text(
             context.l10n.analyzingStatus,
@@ -79,26 +78,29 @@ class _SacredInputState extends ConsumerState<SacredInput> {
               fontSize: (sw * 3).clamp(10.0, 14.0),
               fontWeight: FontWeight.w300,
             ),
-          ).animate(onPlay: (c) => c.repeat(reverse: true)).fadeIn().shimmer(duration: 1.seconds),
+          )
+              .animate(onPlay: (c) => c.repeat(reverse: true))
+              .fadeIn()
+              .shimmer(duration: 1.seconds),
           SizedBox(height: sw * 4),
         ],
-
         if (_isManualMode && !widget.isLoading && !widget.isListening) ...[
           Padding(
             padding: EdgeInsets.symmetric(horizontal: sw * 6),
             child: GlassContainer(
               opacity: 0.1,
               child: TextField(
-                controller: _textController,
+                controller: widget.controller,
                 autofocus: true,
-                maxLines: 3,
+                maxLines: 4,
                 style: TextStyle(
-                  color: Colors.white, 
+                  color: Colors.white,
                   fontSize: (sw * 4).clamp(14.0, 18.0),
                 ),
                 decoration: InputDecoration(
                   hintText: context.l10n.inputPlaceholder,
-                  hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.3)),
+                  hintStyle:
+                      TextStyle(color: Colors.white.withValues(alpha: 0.3)),
                   border: InputBorder.none,
                   contentPadding: EdgeInsets.all(sw * 4),
                 ),
@@ -107,33 +109,45 @@ class _SacredInputState extends ConsumerState<SacredInput> {
             ),
           ),
           SizedBox(height: sw * 3),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              TextButton(
-                onPressed: () => setState(() => _isManualMode = false),
-                child: Text(
-                  "CANCEL",
-                  style: GoogleFonts.orbitron(
-                    color: Colors.white.withValues(alpha: 0.4),
-                    fontSize: (sw * 2.5).clamp(10.0, 12.0),
+
+          // REACTIVE FAB SECTION
+          ValueListenableBuilder<TextEditingValue>(
+            valueListenable: widget.controller,
+            builder: (context, value, child) {
+              final bool hasText = value.text.trim().isNotEmpty;
+              return Row(
+                mainAxisAlignment: MainAxisAlignment
+                    .end, // Align FAB to right or center? Center is safer for balance.
+                children: [
+                  // Cancel Button
+                  TextButton(
+                    onPressed: () {
+                      setState(() => _isManualMode = false);
+                      widget.controller.clear();
+                    },
+                    child: Text(
+                      "CANCEL",
+                      style: GoogleFonts.orbitron(
+                        color: Colors.white.withValues(alpha: 0.4),
+                        fontSize: (sw * 2.5).clamp(10.0, 12.0),
+                      ),
+                    ),
                   ),
-                ),
-              ),
-              SizedBox(width: sw * 4),
-              ElevatedButton(
-                onPressed: _submitManual,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF7B61FF),
-                ),
-                child: Text(
-                  "SUBMIT",
-                  style: GoogleFonts.orbitron(
-                    fontSize: (sw * 2.5).clamp(10.0, 12.0),
+                  const Spacer(),
+                  AnimatedScale(
+                    scale: hasText ? 1.0 : 0.0,
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.elasticOut,
+                    child: FloatingActionButton(
+                      onPressed: hasText ? _submitManual : null,
+                      backgroundColor: const Color(0xFF7B61FF),
+                      child:
+                          const Icon(Icons.auto_awesome, color: Colors.white),
+                    ).animate(onPlay: (c) => c.repeat(reverse: true)),
                   ),
-                ),
-              ),
-            ],
+                ],
+              );
+            },
           ),
         ] else if (!widget.isListening && !widget.isLoading) ...[
           MouseRegion(
@@ -209,7 +223,7 @@ class _SacredInputState extends ConsumerState<SacredInput> {
             ),
           ),
         ] else if (widget.isListening) ...[
-           GestureDetector(
+          GestureDetector(
             onTap: widget.onStopListening,
             behavior: HitTestBehavior.opaque,
             child: Container(
@@ -232,8 +246,8 @@ class _SacredInputState extends ConsumerState<SacredInput> {
               ),
               child: Center(
                 child: Icon(
-                  Icons.stop, 
-                  color: const Color(0xFF00F0FF), 
+                  Icons.stop,
+                  color: const Color(0xFF00F0FF),
                   size: (sw * 7).clamp(24.0, 32.0),
                 ),
               ),

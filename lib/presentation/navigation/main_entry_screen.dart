@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:dream_reader/features/dream/presentation/dream_screen.dart';
-import 'package:dream_reader/features/insights/presentation/insights_screen.dart';
+import 'package:dream_reader/features/profile/presentation/profile_screen.dart';
 import 'package:dream_reader/features/nebula/presentation/nebula_screen.dart';
+import 'package:dream_reader/features/insights/presentation/wisdom_hub_screen.dart';
+import 'package:dream_reader/features/dream/presentation/dream_screen.dart';
 import 'package:dream_reader/presentation/navigation/navigation_provider.dart';
-import 'package:dream_reader/core/utils/responsive_layout.dart';
+
+import 'package:dream_reader/features/common/app_config_provider.dart';
+import 'package:dream_reader/core/services/language_service.dart';
 
 class MainEntryScreen extends ConsumerWidget {
   const MainEntryScreen({super.key});
@@ -13,104 +16,80 @@ class MainEntryScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedIndex = ref.watch(navigationIndexProvider);
-    final notifier = ref.read(navigationIndexProvider.notifier);
-
-    final screens = [
-      const DreamScreen(),
-      const NebulaScreen(),
-      const InsightsScreen(),
-      const Scaffold(backgroundColor: Colors.transparent, body: Center(child: Text("Profile (Coming Soon)", style: TextStyle(color: Colors.white)))),
-    ];
+    final config = ref.watch(appConfigProvider);
+    final locale = config.locale;
 
     return Scaffold(
-      backgroundColor: Colors.black, // Dark background for the whole app
-      body: Row(
-        children: [
-          // Desktop/Web Navigation Rail
-          if (ResponsiveLayout.isDesktop(context) || ResponsiveLayout.isTablet(context))
-            NavigationRail(
-              backgroundColor: Colors.black.withValues(alpha: 0.8),
-              selectedIndex: selectedIndex,
-              onDestinationSelected: notifier.setIndex,
-              labelType: NavigationRailLabelType.all,
-              selectedLabelTextStyle: GoogleFonts.orbitron(color: const Color(0xFF00F0FF), fontSize: 12),
-              unselectedLabelTextStyle: GoogleFonts.orbitron(color: Colors.white54, fontSize: 10),
-              useIndicator: true,
-              indicatorColor: const Color(0xFF00F0FF).withValues(alpha: 0.2),
-              destinations: const [
-                NavigationRailDestination(
-                  icon: Icon(Icons.auto_awesome, color: Colors.white54),
-                  selectedIcon: Icon(Icons.auto_awesome, color: Color(0xFF00F0FF)),
-                  label: Text('Dream'),
-                ),
-                NavigationRailDestination(
-                  icon: Icon(Icons.grid_view, color: Colors.white54),
-                  selectedIcon: Icon(Icons.grid_view, color: Color(0xFF00F0FF)),
-                  label: Text('Nebula'),
-                ),
-                NavigationRailDestination(
-                  icon: Icon(Icons.insights, color: Colors.white54),
-                  selectedIcon: Icon(Icons.insights, color: Color(0xFF00F0FF)),
-                  label: Text('Insights'),
-                ),
-                 NavigationRailDestination(
-                  icon: Icon(Icons.person, color: Colors.white54),
-                  selectedIcon: Icon(Icons.person, color: Color(0xFF00F0FF)),
-                  label: Text('Profile'),
-                ),
-              ],
-            ),
-          
-          Expanded(
-            child: IndexedStack(
-              index: selectedIndex,
-              children: screens,
-            ),
-          ),
+      backgroundColor: Colors.black, // Root background
+      body: IndexedStack(
+        index: selectedIndex,
+        children: const [
+          DreamScreen(), // 0
+          NebulaScreen(), // 1
+          WisdomHubScreen(), // 2
+          ProfileScreen(), // 3
         ],
       ),
-      bottomNavigationBar: (ResponsiveLayout.isMobile(context))
+      bottomNavigationBar: MediaQuery.of(context).size.width < 600
           ? Container(
               decoration: BoxDecoration(
-                border: Border(top: BorderSide(color: Colors.white.withValues(alpha: 0.1))),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.5),
-                    blurRadius: 10,
-                    spreadRadius: 2,
-                  )
-                ]
-              ),
+                  color: Colors.black.withValues(alpha: 0.8),
+                  border: Border(
+                      top: BorderSide(
+                          color: Colors.white.withValues(alpha: 0.1))),
+                  boxShadow: [
+                    BoxShadow(
+                        color: const Color(0xFF7B61FF).withValues(alpha: 0.1),
+                        blurRadius: 20,
+                        spreadRadius: -5)
+                  ]),
               child: BottomNavigationBar(
-                backgroundColor: Colors.black.withValues(alpha: 0.9), // Almost opaque for mobile readability
+                elevation: 0,
+                backgroundColor: Colors.transparent,
                 type: BottomNavigationBarType.fixed,
                 currentIndex: selectedIndex,
-                onTap: notifier.setIndex,
                 selectedItemColor: const Color(0xFF00F0FF),
-                unselectedItemColor: Colors.white54,
-                selectedLabelStyle: GoogleFonts.orbitron(fontSize: 10, fontWeight: FontWeight.bold),
-                unselectedLabelStyle: GoogleFonts.orbitron(fontSize: 10),
-                items: const [
+                unselectedItemColor: Colors.white38,
+                selectedLabelStyle:
+                    GoogleFonts.orbitron(fontSize: 10, letterSpacing: 1),
+                unselectedLabelStyle:
+                    GoogleFonts.rajdhani(fontSize: 10, letterSpacing: 1),
+                onTap: (index) {
+                  ref.read(navigationIndexProvider.notifier).setIndex(index);
+                },
+                items: [
                   BottomNavigationBarItem(
-                    icon: Icon(Icons.auto_awesome),
-                    label: 'Dream',
+                    icon: const Icon(Icons.nightlight_round),
+                    activeIcon: const Icon(Icons.nightlight_round, shadows: [
+                      BoxShadow(color: Color(0xFF00F0FF), blurRadius: 10)
+                    ]),
+                    label: LanguageService.getString(locale, 'nav_record'),
                   ),
                   BottomNavigationBarItem(
-                    icon: Icon(Icons.grid_view),
-                    label: 'Nebula',
+                    icon: const Icon(Icons.auto_awesome_mosaic),
+                    activeIcon: const Icon(Icons.auto_awesome_mosaic, shadows: [
+                      BoxShadow(color: Color(0xFF00F0FF), blurRadius: 10)
+                    ]),
+                    label: LanguageService.getString(locale, 'nav_nebula'),
                   ),
                   BottomNavigationBarItem(
-                    icon: Icon(Icons.insights),
-                    label: 'Insights',
+                    icon: const Icon(Icons.insights),
+                    activeIcon: const Icon(Icons.insights, shadows: [
+                      BoxShadow(color: Color(0xFF00F0FF), blurRadius: 10)
+                    ]),
+                    label: LanguageService.getString(locale, 'nav_wisdom'),
                   ),
-                   BottomNavigationBarItem(
-                    icon: Icon(Icons.person),
-                    label: 'Profile',
+                  BottomNavigationBarItem(
+                    icon: const Icon(Icons.person),
+                    activeIcon: const Icon(Icons.person, shadows: [
+                      BoxShadow(color: Color(0xFF00F0FF), blurRadius: 10)
+                    ]),
+                    label: LanguageService.getString(locale, 'nav_soul'),
                   ),
                 ],
               ),
             )
-          : null,
+          : null, // No bottom bar for desktop, assumes another nav mechanism or simple fallback
     );
   }
 }

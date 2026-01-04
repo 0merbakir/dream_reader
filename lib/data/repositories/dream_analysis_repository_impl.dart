@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:dream_reader/data/services/mock_data_service.dart';
 
 part 'dream_analysis_repository_impl.g.dart';
 
@@ -66,7 +67,7 @@ JSON format:
 
     try {
       final response = await _model.generateContent(prompt);
-      
+
       String? responseText = response.text;
       if (responseText == null) {
         throw Exception('Failed to generate analysis: Empty response.');
@@ -74,11 +75,12 @@ JSON format:
 
       // Clean markdown code blocks if present
       if (responseText.contains('```')) {
-        responseText = responseText.replaceAll(RegExp(r'```json|```'), '').trim();
+        responseText =
+            responseText.replaceAll(RegExp(r'```json|```'), '').trim();
       }
 
       final jsonMap = jsonDecode(responseText) as Map<String, dynamic>;
-      
+
       // Persist to Hive
       try {
         await _box.add({
@@ -94,6 +96,42 @@ JSON format:
     } catch (e) {
       debugPrint('❌ Analysis Parsing Error: $e');
       throw Exception('Dream analysis failed: $e');
+    }
+  }
+
+  @override
+  Future<void> updateDreamImage(int index, String imageUrl) async {
+    try {
+      if (index < 0 || index >= _box.length) {
+        throw Exception("Dream index out of bounds");
+      }
+
+      final dreamData = Map<String, dynamic>.from(_box.getAt(index) as Map);
+      dreamData['imageUrl'] = imageUrl;
+
+      await _box.putAt(index, dreamData);
+      debugPrint('🌌 Image URL saved to Hive at index $index');
+    } catch (e) {
+      debugPrint('❌ Failed to update dream image: $e');
+    }
+  }
+
+  @override
+  List<dynamic> getDreams() {
+    return _box.values.toList();
+  }
+
+  @override
+  Future<void> seedDatabase() async {
+    if (_box.isEmpty) {
+      debugPrint("🌱 Seeding Database with Sacred Visions...");
+
+      final seeds = MockDataService.getMockDreams();
+
+      for (var seed in seeds) {
+        await _box.add(seed);
+      }
+      debugPrint("✅ Seeding Complete: ${seeds.length} dreams added.");
     }
   }
 }
