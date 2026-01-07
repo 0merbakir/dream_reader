@@ -5,7 +5,6 @@ import 'package:dream_reader/presentation/widgets/audio_waveform.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:dream_reader/core/widgets/glass_container.dart';
 import 'package:dream_reader/application/dream_controller.dart';
-import 'package:dream_reader/core/extensions/l10n_extension.dart';
 
 class SacredInput extends ConsumerStatefulWidget {
   final bool isListening;
@@ -59,7 +58,7 @@ class _SacredInputState extends ConsumerState<SacredInput> {
             child: const Center(child: AudioWaveform(isListening: true)),
           ),
           Text(
-            context.l10n.listeningStatus,
+            "Listening...",
             style: GoogleFonts.orbitron(
               color: Colors.white.withValues(alpha: 0.7),
               letterSpacing: 2.0,
@@ -69,20 +68,21 @@ class _SacredInputState extends ConsumerState<SacredInput> {
           ).animate().fadeIn(),
           SizedBox(height: sw * 4),
         ],
-
         if (widget.isLoading) ...[
           Text(
-            context.l10n.analyzingStatus,
+            "Analyzing...",
             style: GoogleFonts.orbitron(
               color: const Color(0xFFFF00FF),
               letterSpacing: 2.0,
               fontSize: (sw * 3).clamp(10.0, 14.0),
               fontWeight: FontWeight.w300,
             ),
-          ).animate(onPlay: (c) => c.repeat(reverse: true)).fadeIn().shimmer(duration: 1.seconds),
+          )
+              .animate(onPlay: (c) => c.repeat(reverse: true))
+              .fadeIn()
+              .shimmer(duration: 1.seconds),
           SizedBox(height: sw * 4),
         ],
-
         if (_isManualMode && !widget.isLoading && !widget.isListening) ...[
           Padding(
             padding: EdgeInsets.symmetric(horizontal: sw * 6),
@@ -93,12 +93,13 @@ class _SacredInputState extends ConsumerState<SacredInput> {
                 autofocus: true,
                 maxLines: 3,
                 style: TextStyle(
-                  color: Colors.white, 
+                  color: Colors.white,
                   fontSize: (sw * 4).clamp(14.0, 18.0),
                 ),
                 decoration: InputDecoration(
-                  hintText: context.l10n.inputPlaceholder,
-                  hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.3)),
+                  hintText: "Describe your dream...",
+                  hintStyle:
+                      TextStyle(color: Colors.white.withValues(alpha: 0.3)),
                   border: InputBorder.none,
                   contentPadding: EdgeInsets.all(sw * 4),
                 ),
@@ -176,7 +177,7 @@ class _SacredInputState extends ConsumerState<SacredInput> {
                       SizedBox(width: sw * 4),
                       Flexible(
                         child: Text(
-                          context.l10n.recordDream,
+                          "Record Dream",
                           style: GoogleFonts.orbitron(
                             color: Colors.white,
                             letterSpacing: 2,
@@ -209,7 +210,7 @@ class _SacredInputState extends ConsumerState<SacredInput> {
             ),
           ),
         ] else if (widget.isListening) ...[
-           GestureDetector(
+          GestureDetector(
             onTap: widget.onStopListening,
             behavior: HitTestBehavior.opaque,
             child: Container(
@@ -232,8 +233,8 @@ class _SacredInputState extends ConsumerState<SacredInput> {
               ),
               child: Center(
                 child: Icon(
-                  Icons.stop, 
-                  color: const Color(0xFF00F0FF), 
+                  Icons.stop,
+                  color: const Color(0xFF00F0FF),
                   size: (sw * 7).clamp(24.0, 32.0),
                 ),
               ),

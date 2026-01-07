@@ -25,8 +25,9 @@ class _DreamScreenState extends ConsumerState<DreamScreen> {
 
   Future<void> _captureAndShare() async {
     try {
-      final boundary = _shareKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
-      
+      final boundary = _shareKey.currentContext?.findRenderObject()
+          as RenderRepaintBoundary?;
+
       if (boundary == null) {
         debugPrint("Share Error: Boundary not found");
         return;
@@ -34,7 +35,7 @@ class _DreamScreenState extends ConsumerState<DreamScreen> {
 
       final image = await boundary.toImage(pixelRatio: 2.0);
       final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
-      
+
       if (byteData != null) {
         final pngBytes = byteData.buffer.asUint8List();
         ref.read(dreamControllerProvider.notifier).shareResult(pngBytes);
@@ -52,6 +53,44 @@ class _DreamScreenState extends ConsumerState<DreamScreen> {
     final bool isDesktop = size.width >= 1024;
     final double horizontalPadding = size.width * 0.05;
 
+    // Error Handling Listener
+    ref.listen<DreamState>(dreamControllerProvider, (previous, next) {
+      if (next.error != null && next.error != previous?.error) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.error_outline, color: Colors.white),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    next.error!,
+                    style: GoogleFonts.orbitron(
+                      color: Colors.white,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.redAccent.withValues(alpha: 0.9),
+            behavior: SnackBarBehavior.floating,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            margin: const EdgeInsets.all(20),
+            duration: const Duration(seconds: 4),
+            action: SnackBarAction(
+              label: 'DISMISS',
+              textColor: Colors.white,
+              onPressed: () {
+                ScaffoldMessenger.of(context).hideCurrentSnackBar();
+              },
+            ),
+          ),
+        );
+      }
+    });
+
     return Scaffold(
       backgroundColor: Colors.black,
       body: Stack(
@@ -66,7 +105,8 @@ class _DreamScreenState extends ConsumerState<DreamScreen> {
                     // 1. Adaptive Header
                     SliverToBoxAdapter(
                       child: Padding(
-                        padding: EdgeInsets.symmetric(vertical: size.height * 0.02),
+                        padding:
+                            EdgeInsets.symmetric(vertical: size.height * 0.02),
                         child: Center(
                           child: Text(
                             context.l10n.appTitle,
@@ -81,46 +121,48 @@ class _DreamScreenState extends ConsumerState<DreamScreen> {
                       ),
                     ),
 
-                // 2. Responsive Content Layout
-                SliverPadding(
-                  padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
-                  sliver: SliverToBoxAdapter(
-                    child: isDesktop
-                        ? Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Left: AI Orb & Visuals
-                              Expanded(
-                                flex: 4,
-                                child: Column(
-                                  children: [
-                                    _buildOrbSection(size, dreamState),
-                                  ],
-                                ),
+                    // 2. Responsive Content Layout
+                    SliverPadding(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: horizontalPadding),
+                      sliver: SliverToBoxAdapter(
+                        child: isDesktop
+                            ? Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // Left: AI Orb & Visuals
+                                  Expanded(
+                                    flex: 4,
+                                    child: Column(
+                                      children: [
+                                        _buildOrbSection(size, dreamState),
+                                      ],
+                                    ),
+                                  ),
+                                  // Right: Interpretation Feed
+                                  Expanded(
+                                    flex: 6,
+                                    child: _buildAnalysisSection(dreamState),
+                                  ),
+                                ],
+                              )
+                            : Column(
+                                children: [
+                                  _buildOrbSection(size, dreamState),
+                                  _buildAnalysisSection(dreamState),
+                                ],
                               ),
-                              // Right: Interpretation Feed
-                              Expanded(
-                                flex: 6,
-                                child: _buildAnalysisSection(dreamState),
-                              ),
-                            ],
-                          )
-                        : Column(
-                            children: [
-                              _buildOrbSection(size, dreamState),
-                              _buildAnalysisSection(dreamState),
-                            ],
-                          ),
-                  ),
-                ),
+                      ),
+                    ),
 
-                // 3. Spacing for Input
-                SliverToBoxAdapter(child: SizedBox(height: size.height * 0.15)),
-              ],
+                    // 3. Spacing for Input
+                    SliverToBoxAdapter(
+                        child: SizedBox(height: size.height * 0.15)),
+                  ],
+                ),
+              ),
             ),
           ),
-        ),
-      ),
 
           // 4. Fixed Input Area (Floating at bottom)
           Positioned(
@@ -152,7 +194,8 @@ class _DreamScreenState extends ConsumerState<DreamScreen> {
                     isLoading: dreamState.isLoading,
                     onStartListening: () {
                       final locale = Localizations.localeOf(context);
-                      final localeId = "${locale.languageCode}-${locale.countryCode ?? locale.languageCode.toUpperCase()}";
+                      final localeId =
+                          "${locale.languageCode}-${locale.countryCode ?? locale.languageCode.toUpperCase()}";
                       controller.startVoiceInput(localeId);
                     },
                     onStopListening: () => controller.stopVoiceInput(),
