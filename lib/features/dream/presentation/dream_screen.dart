@@ -59,6 +59,44 @@ class _DreamScreenState extends ConsumerState<DreamScreen> {
     final bool isDesktop = size.width >= 1024;
     final double horizontalPadding = size.width * 0.05;
 
+    // Error Handling Listener
+    ref.listen<DreamState>(dreamControllerProvider, (previous, next) {
+      if (next.error != null && next.error != previous?.error) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.error_outline, color: Colors.white),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    next.error!,
+                    style: GoogleFonts.orbitron(
+                      color: Colors.white,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.redAccent.withValues(alpha: 0.9),
+            behavior: SnackBarBehavior.floating,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            margin: const EdgeInsets.all(20),
+            duration: const Duration(seconds: 4),
+            action: SnackBarAction(
+              label: 'DISMISS',
+              textColor: Colors.white,
+              onPressed: () {
+                ScaffoldMessenger.of(context).hideCurrentSnackBar();
+              },
+            ),
+          ),
+        );
+      }
+    });
+
     return Scaffold(
       backgroundColor: Colors.black,
       body: Stack(

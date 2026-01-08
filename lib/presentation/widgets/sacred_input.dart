@@ -5,7 +5,6 @@ import 'package:dream_reader/presentation/widgets/audio_waveform.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:dream_reader/core/widgets/glass_container.dart';
 import 'package:dream_reader/application/dream_controller.dart';
-import 'package:dream_reader/core/extensions/l10n_extension.dart';
 
 class SacredInput extends ConsumerStatefulWidget {
   final bool isListening;
@@ -59,7 +58,7 @@ class _SacredInputState extends ConsumerState<SacredInput> {
             child: const Center(child: AudioWaveform(isListening: true)),
           ),
           Text(
-            context.l10n.listeningStatus,
+            "Listening...",
             style: GoogleFonts.orbitron(
               color: Colors.white.withValues(alpha: 0.7),
               letterSpacing: 2.0,
@@ -71,7 +70,7 @@ class _SacredInputState extends ConsumerState<SacredInput> {
         ],
         if (widget.isLoading) ...[
           Text(
-            context.l10n.analyzingStatus,
+            "Analyzing...",
             style: GoogleFonts.orbitron(
               color: const Color(0xFFFF00FF),
               letterSpacing: 2.0,
@@ -190,7 +189,7 @@ class _SacredInputState extends ConsumerState<SacredInput> {
                       SizedBox(width: sw * 4),
                       Flexible(
                         child: Text(
-                          context.l10n.recordDream,
+                          "Record Dream",
                           style: GoogleFonts.orbitron(
                             color: Colors.white,
                             letterSpacing: 2,
