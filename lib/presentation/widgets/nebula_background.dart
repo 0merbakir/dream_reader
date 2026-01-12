@@ -2,6 +2,11 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
+/// A background widget that renders a deep space nebula effect.
+///
+/// This serves as the foundation of the "Antigravity" design system,
+/// providing a dynamic, mood-setting backdrop with animated blobs
+/// and glassmorphic filtering.
 class NebulaBackground extends StatelessWidget {
   const NebulaBackground({super.key});
 
@@ -20,9 +25,16 @@ class NebulaBackground extends StatelessWidget {
             color: const Color(0xFF2E004F),
             size: 400,
             blur: 100,
-          ).animate(onPlay: (c) => c.repeat(reverse: true))
-           .move(duration: 20.seconds, begin: const Offset(0, 0), end: const Offset(20, 50))
-           .scale(duration: 30.seconds, begin: const Offset(1, 1), end: const Offset(1.2, 1.2)),
+          )
+              .animate(onPlay: (c) => c.repeat(reverse: true))
+              .move(
+                  duration: 20.seconds,
+                  begin: const Offset(0, 0),
+                  end: const Offset(20, 50))
+              .scale(
+                  duration: 30.seconds,
+                  begin: const Offset(1, 1),
+                  end: const Offset(1.2, 1.2)),
         ),
 
         // Layer 2: Cosmic Cyan Highlights
@@ -33,9 +45,13 @@ class NebulaBackground extends StatelessWidget {
             color: const Color(0xFF003366),
             size: 350,
             blur: 80,
-          ).animate(onPlay: (c) => c.repeat(reverse: true))
-           .move(duration: 25.seconds, begin: const Offset(0, 0), end: const Offset(-30, -30))
-           .fadeIn(duration: 5.seconds),
+          )
+              .animate(onPlay: (c) => c.repeat(reverse: true))
+              .move(
+                  duration: 25.seconds,
+                  begin: const Offset(0, 0),
+                  end: const Offset(-30, -30))
+              .fadeIn(duration: 5.seconds),
         ),
 
         // Layer 3: Vibrant Accent
@@ -46,10 +62,12 @@ class NebulaBackground extends StatelessWidget {
             color: const Color(0xFF7B61FF).withValues(alpha: 0.3),
             size: 250,
             blur: 90,
-          ).animate(onPlay: (c) => c.repeat(reverse: true))
-           .move(duration: 18.seconds, begin: const Offset(0, 0), end: const Offset(40, -20)),
+          ).animate(onPlay: (c) => c.repeat(reverse: true)).move(
+              duration: 18.seconds,
+              begin: const Offset(0, 0),
+              end: const Offset(40, -20)),
         ),
-        
+
         // Backdrop Filter to blend everything smoothly
         Positioned.fill(
           child: BackdropFilter(
