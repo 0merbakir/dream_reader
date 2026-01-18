@@ -14,7 +14,7 @@ class NebulaBackground extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        // Deep Space Black Base
+        // Deep Space Black Base Layer
         Container(color: const Color(0xFF050510)),
 
         // Layer 1: Deep Purple/Blue Nebulas
